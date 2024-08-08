@@ -1,44 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Giriş Yap</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
     <style>
-        .messages {
-            list-style-type: none;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        .messages li {
-            margin-bottom: 10px;
-            padding: 12px;
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            max-width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
             border-radius: 5px;
+            font-size: 16px;
         }
-        .messages li.success {
-            background-color: #d4edda;
-            color: #155724;
+
+        .button-container {
+            display: flex;
+            justify-content: center;
         }
-        .messages li.error {
-            background-color: #f8d7da;
-            color: #721c24;
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px #999;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button:active {
+            background-color: #45a049;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <h2>Giriş Yap</h2>
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Giriş Yap</button>
-    </form>
-    <br>
-    <a href="{% url 'register' %}"><button>Kayıt Ol</button></a>
-    <br>
-    <a href="{% url 'password_reset' %}"><button>Şifremi Unuttum</button></a>
+    <div class="container">
+        <h2>Login</h2>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="error-message">
+                    Geçersiz giriş bilgileri. Lütfen tekrar deneyin.
+                </div>
+            {% endif %}
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <div class="button-container">
+                <button type="submit" class="button">Login</button>
+            </div>
+        </form>
+        <div class="button-container" style="margin-top: 10px;">
+            <a href="{% url 'password_reset' %}" class="button">Forgot Password?</a>
+            <a href="{% url 'register' %}" class="button">Register</a>
+        </div>
+    </div>
 </body>
 </html>

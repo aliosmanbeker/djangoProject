@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resim Yükle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            max-width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .messages li {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        form p {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], input[type="file"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px #999;
+            margin-top: 10px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button:active {
+            background-color: #45a049;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .button-container a {
+            flex: 1;
+            text-align: center;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Resim Yükle</h2>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ post_form.as_p }}
+            {{ formset.management_form }}
+            {% for form in formset %}
+                {{ form.as_p }}
+            {% endfor %}
+            <button type="submit" class="button">Yükle</button>
+        </form>
+        <div class="button-container">
+            <a href="{% url 'user_list' %}" class="button">Users</a>
+            <a href="{% url 'followed_posts' %}" class="button">Posts</a>
+        </div>
+    </div>
+</body>
+</html>

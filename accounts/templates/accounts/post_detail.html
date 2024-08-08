@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post Detayı</title>
+</head>
+<body>
+    <h2>{{ post.text }}</h2>
+    <p>Kullanıcı ID: {{ post.user.id }}</p>
+    <p>Post Sırası: {{ post.order }}</p>
+    <p>Yükleme Zamanı: {{ post.created_at }}</p>
+    {% for image in post.images.all %}
+        <img src="{{ image.image.url }}" alt="{{ post.text }}">
+        {% if image.image_120x120 %}
+            <p>120x120: <img src="{{ image.image_120x120.url }}" alt="{{ post.text }}"></p>
+        {% endif %}
+        {% if image.image_400x400 %}
+            <p>400x400: <img src="{{ image.image_400x400.url }}" alt="{{ post.text }}"></p>
+        {% endif %}
+        {% if image.image_800x800 %}
+            <p>800x800: <img src="{{ image.image_800x800.url }}" alt="{{ post.text }}"></p>
+        {% endif %}
+    {% endfor %}
+    <a href="{% url 'upload' %}">Yeni Resim Yükle</a>
+</body>
+</html>

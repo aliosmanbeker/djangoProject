@@ -2,9 +2,97 @@
 <html>
 <head>
     <title>Welcome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+            max-width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .messages li {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px #999;
+            margin-top: 10px;
+            margin-right: 5px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button:active {
+            background-color: #45a049;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
 </head>
 <body>
-    <h2>Hoş Geldiniz!</h2>
-    <p>Başarıyla giriş yaptınız.</p>
+    <div class="container">
+        <h2>Welcome</h2>
+        <div class="button-container">
+            <a href="{% url 'upload' %}" class="button">Resim Yükle</a>
+            <a href="{% url 'profile' %}" class="button">Profile</a>  <!-- Profile butonu -->
+            <a href="{% url 'user_list' %}" class="button">Users</a>
+            <a href="{% url 'followed_posts' %}" class="button">Posts</a>
+        </div>
+    </div>
 </body>
 </html>

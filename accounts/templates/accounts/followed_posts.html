@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Takip Edilen Gönderiler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            max-width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .post {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .post img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .post p {
+            color: #555;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px #999;
+            margin-top: 10px;
+            margin-right: 5px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button:active {
+            background-color: #45a049;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Takip Edilen Gönderiler</h2>
+        {% if posts %}
+            {% for post in posts %}
+                <div class="post">
+                    {% for image in post.images.all %}
+                        <img src="{{ image.image_400x400.url }}" alt="{{ post.text }}">
+                    {% endfor %}
+                    <p>{{ post.text }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Takip ettiğiniz kullanıcıların gönderisi bulunmamaktadır.</p>
+        {% endif %}
+        <div class="button-container">
+            <a href="{% url 'user_list' %}" class="button">Users</a>
+            <a href="{% url 'upload' %}" class="button">Upload</a>
+            <a href="{% url 'profile' %}" class="button">Profile</a>
+            <a href="{% url 'welcome' %}" class="button">Welcome</a>
+        </div>
+    </div>
+</body>
+</html>

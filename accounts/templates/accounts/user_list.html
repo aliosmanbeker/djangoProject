@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kullanıcı Listesi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            max-width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .user {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-info p {
+            margin: 0;
+            color: #555;
+        }
+
+        .follow-button, .unfollow-button {
+            display: inline-block;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px #999;
+        }
+
+        .follow-button {
+            background-color: #4CAF50;
+        }
+
+        .follow-button:hover {
+            background-color: #45a049;
+        }
+
+        .follow-button:active {
+            background-color: #45a049;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+
+        .unfollow-button {
+            background-color: #f44336;
+        }
+
+        .unfollow-button:hover {
+            background-color: #e53935;
+        }
+
+        .unfollow-button:active {
+            background-color: #e53935;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px #999;
+            margin-top: 10px;
+            margin-right: 5px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button:active {
+            background-color: #45a049;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Kullanıcı Listesi</h2>
+        {% if users %}
+            {% for user in users %}
+                <div class="user">
+                    <div class="user-info">
+                        <p><strong>Ad:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                    </div>
+                    <form method="post" action="{% url 'follow_unfollow' user.id %}">
+                        {% csrf_token %}
+                        {% if user.id in following_ids %}
+                            <button type="submit" class="unfollow-button">Unfollow</button>
+                        {% else %}
+                            <button type="submit" class="follow-button">Follow</button>
+                        {% endif %}
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-users">Kayıtlı kullanıcı bulunmamaktadır.</p>
+        {% endif %}
+        <div class="button-container">
+            <a href="{% url 'upload' %}" class="button">Resim Yükle</a>
+            <a href="{% url 'profile' %}" class="button">Profile</a>
+            <a href="{% url 'followed_posts' %}" class="button">Posts</a>
+            <a href="{% url 'user_list' %}" class="button">Users</a>
+        </div>
+    </div>
+</body>
+</html>
