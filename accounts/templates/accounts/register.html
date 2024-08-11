@@ -1,16 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kayıt Ol</title>
     <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333333;
+        }
         .messages {
             list-style-type: none;
             padding: 0;
+            margin-bottom: 20px;
         }
         .messages li {
             margin-bottom: 10px;
             padding: 12px;
             border-radius: 5px;
+            font-size: 14px;
         }
         .messages li.success {
             background-color: #d4edda;
@@ -20,23 +45,63 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        form input[type="text"], form input[type="password"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            padding: 10px;
+            background-color: #28a745; /* Login ekranındaki yeşil rengi */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838; /* Hover için daha koyu yeşil */
+        }
+        .link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .link a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h2>Kayıt Ol</h2>
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Kayıt Ol</button>
-    </form>
-    <br>
-    <a href="{% url 'login' %}"><button>Giriş Yap</button></a>
+    <div class="container">
+        <h2>Kayıt Ol</h2>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Kayıt Ol</button>
+        </form>
+        <div class="link">
+            <form action="{% url 'login' %}" method="get">
+                <button type="submit" class="button">Giriş Yap</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
