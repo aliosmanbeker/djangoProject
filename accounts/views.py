@@ -8,10 +8,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import RegistrationForm, LoginForm, UploadForm, ImageForm
 from .models import MyUser, Post, Image
-from .utils import resize_and_save_images
 from django.contrib.auth import get_user_model
 from .models import Follow
-from django.db import IntegrityError
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .tasks import archive_post_and_notify
+from .models import Post
 from .forms import ProfileUpdateForm
 
 def register(request):
@@ -128,6 +130,11 @@ def profile(request):
 
     posts = Post.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'accounts/profile.html', {'form': form, 'posts': posts})
+
+def archive_post(request, post_id):
+    if request.method == 'POST':
+        archive_post_and_notify.delay(post_id, request.user.email)
+        return redirect('followed_posts')
 
 def home(request):
     return render(request, 'accounts/home.html')

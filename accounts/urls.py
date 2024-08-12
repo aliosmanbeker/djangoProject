@@ -16,4 +16,5 @@ urlpatterns = [
     path('follow/<int:user_id>/', views.follow_unfollow, name='follow_unfollow'),
     path('followed_posts/', views.followed_posts, name='followed_posts'),  # Takip edilen kullanıcıların postları URL'si
     path('profile/', profile, name='profile'),  # Profil URL'si
+    path('archive/<int:post_id>/', views.archive_post, name='archive_post'),
 ]

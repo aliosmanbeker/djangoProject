@@ -91,6 +91,10 @@
                         <img src="{{ image.image_400x400.url }}" alt="{{ post.text }}">
                     {% endfor %}
                     <p>{{ post.text }}</p>
+                    <form method="post" action="{% url 'archive_post' post.id %}">
+                        {% csrf_token %}
+    <                       <button type="submit">Arşivle</button>
+                    </form>
                 </div>
             {% endfor %}
         {% else %}
