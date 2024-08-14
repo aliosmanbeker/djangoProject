@@ -6,16 +6,17 @@ from django.forms import modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegistrationForm, LoginForm, UploadForm, ImageForm
-from .models import MyUser, Post, Image
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from .forms import RegistrationForm, LoginForm, UploadForm, ImageForm, ProfileUpdateForm
+from .models import MyUser, Post, Image, Follow
 from django.contrib.auth import get_user_model
-from .models import Follow
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from .tasks import archive_post_and_notify
-from .models import Post
-from .forms import ProfileUpdateForm
+from .serializers import UserSerializer, PostSerializer
+from django.core.cache import cache
 
+
+# Django Views
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -32,6 +33,7 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
 
+
 def send_activation_email(user):
     activation_url = f"{settings.SITE_URL}/accounts/activate/{user.activation_code}/"
     subject = 'Hesabınızı Etkinleştirin'
@@ -39,6 +41,7 @@ def send_activation_email(user):
     from_email = settings.DEFAULT_FROM_EMAIL
     recipient_list = [user.email]
     send_mail(subject, message, from_email, recipient_list)
+
 
 def activate_account(request, code):
     try:
@@ -53,11 +56,13 @@ def activate_account(request, code):
         messages.error(request, 'Geçersiz aktivasyon kodu.')
         return redirect('home')
 
+
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
-            user = authenticate(request, username=form.cleaned_data.get('username'), password=form.cleaned_data.get('password'))
+            user = authenticate(request, username=form.cleaned_data.get('username'),
+                                password=form.cleaned_data.get('password'))
             if user is not None:
                 if user.is_active:
                     login(request, user)
@@ -73,26 +78,35 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'accounts/login.html', {'form': form})
 
+
 @login_required
 def upload_view(request):
     if request.method == 'POST':
-        form = UploadForm(request.POST, request.FILES)
-        if form.is_valid():
+        form = UploadForm(request.POST)
+        image_form = ImageForm(request.POST, request.FILES)
+        if form.is_valid() and image_form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-            resize_image.delay(post.image.path)  # Asenkron resim işleme
+
+            image = image_form.save(commit=False)
+            image.post = post
+            image.save()
+
             return redirect('post_detail', post_id=post.id)
     else:
         form = UploadForm()
-    return render(request, 'upload.html', {'form': form})
+        image_form = ImageForm()
+    return render(request, 'accounts/upload.html', {'form': form, 'image_form': image_form})
 
 @login_required
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     return render(request, 'accounts/post_detail.html', {'post': post})
 
+
 User = get_user_model()
+
 
 @login_required
 def user_list(request):
@@ -103,6 +117,7 @@ def user_list(request):
         'following_ids': following_ids,
     })
 
+
 @login_required
 def follow_unfollow(request, user_id):
     user = get_object_or_404(MyUser, id=user_id)
@@ -111,11 +126,13 @@ def follow_unfollow(request, user_id):
         follow_record.delete()
     return redirect('user_list')
 
+
 @login_required
 def followed_posts(request):
     followed_users = MyUser.objects.filter(followers__follower=request.user)
     posts = Post.objects.filter(user__in=followed_users)
     return render(request, 'accounts/followed_posts.html', {'posts': posts})
+
 
 @login_required
 def profile(request):
@@ -123,6 +140,9 @@ def profile(request):
         form = ProfileUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
+            # Cache'i temizle
+            cache_key = f"profile_{request.user.id}"
+            cache.delete(cache_key)
             messages.success(request, 'Profiliniz başarıyla güncellendi.')
             return redirect('profile')
     else:
@@ -131,16 +151,20 @@ def profile(request):
     posts = Post.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'accounts/profile.html', {'form': form, 'posts': posts})
 
+
 def archive_post(request, post_id):
     if request.method == 'POST':
         archive_post_and_notify.delay(post_id, request.user.email)
         return redirect('followed_posts')
 
+
 def home(request):
     return render(request, 'accounts/home.html')
 
+
 def welcome(request):
     return render(request, 'accounts/welcome.html')
+
 
 def password_reset(request):
     if request.method == 'POST':
@@ -156,6 +180,7 @@ def password_reset(request):
             messages.error(request, 'Bu e-posta adresi sistemde kayıtlı değil.')
     return render(request, 'accounts/password_reset.html')
 
+
 def send_password_reset_email(user):
     reset_url = f"{settings.SITE_URL}/accounts/password_reset_confirm/{user.reset_password_token}/"
     subject = 'Şifrenizi Sıfırlayın'
@@ -163,6 +188,7 @@ def send_password_reset_email(user):
     from_email = settings.DEFAULT_FROM_EMAIL
     recipient_list = [user.email]
     send_mail(subject, message, from_email, recipient_list)
+
 
 def password_reset_confirm(request, token):
     if request.method == 'POST':
@@ -178,3 +204,42 @@ def password_reset_confirm(request, token):
         except MyUser.DoesNotExist:
             messages.error(request, 'Geçersiz e-posta adresi veya token.')
     return render(request, 'accounts/password_reset_confirm.html', {'token': token})
+
+
+# Profil View'u (Cache ile)
+@login_required
+def profile_view(request, user_id):
+    # Cache anahtarını belirliyoruz
+    cache_key = f"profile_{user_id}"
+
+    # Cache'te bu anahtar var mı diye kontrol ediyoruz
+    user_profile = cache.get(cache_key)
+
+    if not user_profile:
+        # Eğer cache'te yoksa, veriyi veri tabanından çekiyoruz
+        user_profile = get_object_or_404(MyUser, id=user_id)
+
+        # Cache'e bu veriyi ekliyoruz ve TTL süresini ayarlıyoruz
+        cache.set(cache_key, user_profile, timeout=settings.CACHE_TTL)
+
+    # Veriyi döndürüyoruz
+    return render(request, 'accounts/profile.html', {'user': user_profile})
+
+
+# REST API Views
+class UserList(generics.ListCreateAPIView):
+    queryset = MyUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class PostList(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class PostDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]

@@ -17,9 +17,17 @@ services:
     ports:
       - "6379:6379"
 
-  celery:
+  celery-worker-1:
     build: .
-    command: celery -A myproject worker --loglevel=info
+    command: celery -A myproject worker --loglevel=info --concurrency=2
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+  celery-worker-2:
+    build: .
+    command: celery -A myproject worker --loglevel=info --concurrency=2
     volumes:
       - .:/app
     depends_on:

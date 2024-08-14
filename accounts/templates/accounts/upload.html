@@ -120,11 +120,8 @@
         {% endif %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ post_form.as_p }}
-            {{ formset.management_form }}
-            {% for form in formset %}
-                {{ form.as_p }}
-            {% endfor %}
+            {{ form.as_p }}  <!-- Text alanları burada işleniyor -->
+            {{ image_form.as_p }}  <!-- Resim yükleme alanı burada işleniyor -->
             <button type="submit" class="button">Yükle</button>
         </form>
         <div class="button-container">
